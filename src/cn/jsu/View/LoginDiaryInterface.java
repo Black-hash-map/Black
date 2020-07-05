@@ -294,7 +294,6 @@ public class LoginDiaryInterface {
 			}
 			bw = new BufferedWriter(new FileWriter(file));
 			for(String str : arr) {
-				bw.write(str);
 				bw.newLine();
 				bw.flush();
 			}
