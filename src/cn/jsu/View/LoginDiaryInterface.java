@@ -312,8 +312,6 @@ public class LoginDiaryInterface {
 		DefaultTableModel dtm = (DefaultTableModel)table.getModel();
 		dtm.setRowCount(0);
 		ArrayList<String> arr = new ArrayList<String>();
-		
-		boolean b = false;
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			String s = null;
