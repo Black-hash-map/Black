@@ -8,15 +8,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
-import cn.jsu.Util.DatabaseQuery;
-import cn.jsu.Util.DatabaseUpdate;
+import cn.jsu.Dao.Impl.DatabaseOperateImpl;
+import cn.jsu.Dao.Impl.UserDaoImpl;
 
 import java.awt.Font;
 import java.sql.ResultSet;
-import java.util.Enumeration;
-import java.util.Vector;
-
-import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -113,33 +109,9 @@ public class QueryUserInfomtionInterface {
 		textField.setColumns(10);
 		
 		JButton btnNewButton = new JButton("\u67E5\u8BE2");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {	//查询
-				String username = textField.getText();
-				if(username == null || "".equals(username.trim())) {
-					JOptionPane.showMessageDialog(null, "查询的用户名不能为空");
-					FillUserTable();
-					return;
-				}
-				QueryUser();
-			}
-		});
-		btnNewButton.setFont(new Font("黑体", Font.PLAIN, 18));
-		
 		JButton btnNewButton_1 = new JButton("\u4FEE\u6539");
-		btnNewButton_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ModifyInformation();
-			}
-		});
-		btnNewButton_1.setFont(new Font("黑体", Font.PLAIN, 18));
-		
 		JButton btnNewButton_1_1 = new JButton("\u5220\u9664");
-		btnNewButton_1_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				DelInformation();
-			}
-		});
+		
 		btnNewButton_1_1.setFont(new Font("黑体", Font.PLAIN, 18));
 		GroupLayout groupLayout = new GroupLayout(frame.getContentPane());
 		groupLayout.setHorizontalGroup(
@@ -240,14 +212,40 @@ public class QueryUserInfomtionInterface {
 		group.add(rdbtnNewRadioButton_1_1);
 		
 		frame.getContentPane().setLayout(groupLayout);
-		FillUserTable();
+		new UserDaoImpl().FillTable(table);
+		
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {	//查询
+				String username = textField.getText();
+				if(username == null || "".equals(username.trim())) {
+					JOptionPane.showMessageDialog(null, "查询的用户名不能为空");
+					new UserDaoImpl().FillTable(table);
+					return;
+				}
+				new UserDaoImpl().Query(textField,table);
+			}
+		});
+		btnNewButton.setFont(new Font("黑体", Font.PLAIN, 18));
+		
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {	//修改
+				new UserDaoImpl().Modify(textField_1,textField_2,table,group);
+			}
+		});
+		btnNewButton_1.setFont(new Font("黑体", Font.PLAIN, 18));
+		
+		btnNewButton_1_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {	//删除
+				new UserDaoImpl().Del(textField_1,table);
+			}
+		});
 		
 		table.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
 				String sql = "select * from user";	//sql语句
 				int num = 0 ;
 				try {
-					ResultSet rs = DatabaseQuery.Query(sql);
+					ResultSet rs = new DatabaseOperateImpl().Query(sql);
 					while(rs.next()) {
 						num = table.getSelectedRow();
 						textField_1.setText((String)(table.getValueAt(num, 0)));
@@ -262,113 +260,4 @@ public class QueryUserInfomtionInterface {
 		
 	}
 	
-	/**
-	  * 删除用户信息
-	 *@param sno	删除的用户名
-	 *@param sql	sql语句
-	 *@exception	printStackTrace
-	 */
-	public void DelInformation() {
-		String username = textField_1.getText();
-		String sql = "delete from user where username = '"+username+"'";
-		try {
-			DatabaseUpdate.Update(sql);
-			JOptionPane.showMessageDialog(null, "删除成功！");
-			FillUserTable();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-	}
-
-	/**
-	  * 修改用户信息
-	 *@param username	姓名
-	 *@param password	待修改的密码
-	 *@param type	待修改的类型
-	 *@exception	printStackTrace
-	 */
-	public void ModifyInformation() {
-		String username = textField_1.getText();
-		String password = textField_2.getText();
-		String type = null;	//得到类型
-		Enumeration<AbstractButton> eab = group.getElements();
-		while (eab.hasMoreElements()) {
-			AbstractButton btn = eab.nextElement();
-			if(btn.isSelected()){
-				type=btn.getText();
-				break;
-			}
-		}
-		if( password == null || "".equals(password.trim())){
-			JOptionPane.showMessageDialog(null, "密码不能为空！");
-			return;
-		}
-		if(type == null ){
-			JOptionPane.showMessageDialog(null, "类型不能为空！");
-			return;
-		}
-		String sql = "update user set password = '"+password+"', type = '"+type+
-				"' where username = '"+username+"'";
-		try {
-			DatabaseUpdate.Update(sql);
-			JOptionPane.showMessageDialog(null, "修改成功！");
-			FillUserTable();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	  * 查询用户信息
-	 *@param username	查询的用户名
-	 *@param dtm	创建一个表
-	 *@param sql	sql语句
-	 *@param rs		执行sql语句返回的结果集
-	 *@exception	printStackTrace
-	 */
-	public void QueryUser() {
-		String username = textField.getText();
-		DefaultTableModel dtm = (DefaultTableModel)table.getModel();
-		dtm.setRowCount(0);
-		try {
-			String sql = "select * from user where username = '"+username+"'";
-			ResultSet rs = DatabaseQuery.Query(sql);
-			while(rs.next()) {
-				Vector v = new Vector();
-				v.add(rs.getString("username"));
-				v.add(rs.getString("password"));
-				v.add(rs.getString("type"));
-				dtm.addRow(v);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	/**
-	  * 填充用户表
-	 *@param dtm	待填充的表
-	 *@param sql	sql语句
-	 *@param rs		执行sql语句返回的结果集
-	 *@exception	printStackTrace
-	 */
-	public void FillUserTable() {
-		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
-		dtm.setRowCount(0);
-		try {
-			String sql = "select * from user";
-			ResultSet rs = DatabaseQuery.Query(sql);
-			while(rs.next()) {
-				Vector v = new Vector();
-				v.add(rs.getString("username"));
-				v.add(rs.getString("password"));
-				v.add(rs.getString("type"));
-				dtm.addRow(v);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-	}
 }

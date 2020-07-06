@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 
 /**
-  * 数据库连接关闭
+  * 数据库连接与关闭
  * @author Black
  *
  */
@@ -15,6 +15,11 @@ public class DatabaseConnetion {
 	private static String dbuser="root";
 	private static String dbpassword="123456";
 	
+	/**
+	 * 数据库连接
+	 * @return con	返回连接对象
+	 * @throws Exception
+	 */
 	//获取数据库连接
 	public static Connection getCon() throws Exception {
 		Class.forName(driverName);
@@ -22,6 +27,11 @@ public class DatabaseConnetion {
 		return con;
 	}
 	
+	/**
+	 * 数据库关闭
+	 * @param con	返回关闭对象
+	 * @throws Exception
+	 */
 	//关闭数据库连接
 	public static void closeCon(Connection con) throws Exception{
 		if(con != null) {

@@ -2,6 +2,7 @@ package cn.jsu.View;
 
 import java.awt.EventQueue;
 
+
 import javax.swing.JFrame;
 import javax.swing.JDesktopPane;
 import java.awt.BorderLayout;
@@ -12,8 +13,7 @@ import javax.swing.JOptionPane;
 import java.awt.Font;
 import javax.swing.JTextField;
 
-import cn.jsu.Util.DatabaseQuery;
-import cn.jsu.Util.DatabaseUpdate;
+import cn.jsu.Dao.Impl.DatabaseOperateImpl;
 
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
@@ -204,7 +204,7 @@ public class GradeEnterInterface {
 		}
 		String sql1 = "select * from grade";
 		try {
-			ResultSet rs = DatabaseQuery.Query(sql1);
+			ResultSet rs = new DatabaseOperateImpl().Query(sql1);
 			while(rs.next()) {
 				if(rs.getString(1).equals(sno)) {
 					JOptionPane.showMessageDialog(null, "添加的成绩已经有了！");
@@ -216,7 +216,7 @@ public class GradeEnterInterface {
 		}
 		String sql2 = "insert into grade values('"+sno+"','"+sname+"',"+english+","+databank+","+java+","+internet+")";	//定义sql语句
 		try {
-			DatabaseUpdate.Update(sql2);
+			new DatabaseOperateImpl().Update(sql2);
 			JOptionPane.showMessageDialog(null, "添加成功！");
 			Reset();
 		} catch (Exception e1) {

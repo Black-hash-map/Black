@@ -3,6 +3,8 @@ package cn.jsu.View;
 import java.awt.EventQueue;
 
 
+
+
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -10,12 +12,11 @@ import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.ResultSet;
-import java.util.Vector;
 
 import javax.swing.table.DefaultTableModel;
 
-import cn.jsu.Util.DatabaseQuery;
-import cn.jsu.Util.DatabaseUpdate;
+import cn.jsu.Dao.Impl.DatabaseOperateImpl;
+import cn.jsu.Dao.Impl.StudentDaoImpl;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -108,35 +109,13 @@ public class QueryStudentInformationInterface {
 		textField.setColumns(10);
 		
 		JButton btnNewButton = new JButton("\u67E5\u8BE2");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String sno = textField.getText();
-				if(sno == null || "".equals(sno.trim())) {
-					JOptionPane.showMessageDialog(null, "查询的学号不能为空");
-					FillStudentTable();
-					return;
-				}
-				QueryStudent();
-			}
-		});
-		btnNewButton.setFont(new Font("黑体", Font.PLAIN, 18));
 		
 		JPanel panel = new JPanel();
 		
 		JButton btnNewButton_1 = new JButton("\u4FEE\u6539");
-		btnNewButton_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ModifyInformation();
-			}
-		});
-		btnNewButton_1.setFont(new Font("黑体", Font.PLAIN, 18));
 		
 		JButton btnNewButton_1_1 = new JButton("\u5220\u9664");
-		btnNewButton_1_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				DelInformation();
-			}
-		});
+		
 		btnNewButton_1_1.setFont(new Font("黑体", Font.PLAIN, 18));
 		GroupLayout groupLayout = new GroupLayout(frame.getContentPane());
 		groupLayout.setHorizontalGroup(
@@ -244,14 +223,40 @@ public class QueryStudentInformationInterface {
 		textField_5.setBounds(104, 115, 126, 24);
 		panel.add(textField_5);
 		frame.getContentPane().setLayout(groupLayout);
-		FillStudentTable();
+		new StudentDaoImpl().FillTable(table);
+		
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {	//查询
+				String sno = textField.getText();
+				if(sno == null || "".equals(sno.trim())) {
+					JOptionPane.showMessageDialog(null, "查询的学号不能为空");
+					new StudentDaoImpl().FillTable(table);
+					return;
+				}
+				new StudentDaoImpl().Query(textField, table);
+			}
+		});
+		btnNewButton.setFont(new Font("黑体", Font.PLAIN, 18));
+		
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {	//修改
+				new StudentDaoImpl().Modify(textField_1, textField_2, textField_3, textField_4, textField_5, table);
+			}
+		});
+		btnNewButton_1.setFont(new Font("黑体", Font.PLAIN, 18));
+		
+		btnNewButton_1_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {	//删除
+				new StudentDaoImpl().Del(textField_1, table);
+			}
+		});
 		
 		table.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
 				String sql = "select * from student";	//sql语句
 				int num = 0 ;
 				try {
-					ResultSet rs = DatabaseQuery.Query(sql);
+					ResultSet rs = new DatabaseOperateImpl().Query(sql);
 					while(rs.next()) {
 						num = table.getSelectedRow();
 						textField_1.setText((String)(table.getValueAt(num, 0)));
@@ -269,110 +274,4 @@ public class QueryStudentInformationInterface {
 		
 	}
 	
-	/**
-	  * 删除成绩
-	 *@param sno	删除的学号
-	 *@param sql	sql语句
-	 *@exception	printStackTrace
-	 */
-	public void DelInformation() {
-		String sno = textField_1.getText();
-		String sql = "delete from student where sno = '"+sno+"'";
-		try {
-			DatabaseUpdate.Update(sql);
-			JOptionPane.showMessageDialog(null, "删除成功！");
-			FillStudentTable();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-	}
-
-	/**
-	  * 修改学生信息
-	 *@param sno	学号
-	 *@param sname	姓名
-	 *@param cla	待修改的班级
-	 *@param sex	待修改的性别
-	 *@param age	待修改的年龄
-	 *@exception	printStackTrace
-	 */
-	public void ModifyInformation() {
-		String sno = textField_1.getText();
-		String sname = textField_2.getText();
-		String cla = textField_3.getText();
-		String sex = textField_4.getText();
-		String age = textField_5.getText();
-		if(sname == null || "".equals(sname.trim())) {
-			JOptionPane.showMessageDialog(null, "姓名不能为空！");
-			return;
-		}
-		String sql = "update student set sname = '"+sname+
-				"', class = '"+cla+"', sex = '"+sex+
-				"', age = '"+age+"' where sno = '"+sno+"'";
-		try {
-			DatabaseUpdate.Update(sql);
-			JOptionPane.showMessageDialog(null, "修改成功！");
-			FillStudentTable();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	  * 查询学生信息
-	 *@param sno	查询的学号
-	 *@param dtm	创建一个表
-	 *@param sql	sql语句
-	 *@param rs		执行sql语句返回的结果集
-	 *@exception	printStackTrace
-	 */
-	public void QueryStudent() {
-		String sno = textField.getText();
-		DefaultTableModel dtm = (DefaultTableModel)table.getModel();
-		dtm.setRowCount(0);
-		try {
-			String sql = "select * from student where sno = '"+sno+"'";
-			ResultSet rs = DatabaseQuery.Query(sql);
-			while(rs.next()) {
-				Vector v = new Vector();
-				v.add(rs.getString("sno"));
-				v.add(rs.getString("sname"));
-				v.add(rs.getString("class"));
-				v.add(rs.getString("sex"));
-				v.add(rs.getString("age"));
-				dtm.addRow(v);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	/**
-	  * 填充学生表
-	 *@param dtm	待填充的表
-	 *@param sql	sql语句
-	 *@param rs		执行sql语句返回的结果集
-	 *@exception	printStackTrace
-	 */
-	public void FillStudentTable() {
-		DefaultTableModel dtm = (DefaultTableModel)table.getModel();
-		dtm.setRowCount(0);
-		try {
-			String sql = "select * from student";
-			ResultSet rs = DatabaseQuery.Query(sql);
-			while(rs.next()) {
-				Vector v = new Vector();
-				v.add(rs.getString("sno"));
-				v.add(rs.getString("sname"));
-				v.add(rs.getString("class"));
-				v.add(rs.getString("sex"));
-				v.add(rs.getString("age"));
-				dtm.addRow(v);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-	}
 }

@@ -1,6 +1,7 @@
 package cn.jsu.View;
 
 import java.awt.EventQueue;
+
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.GroupLayout;
@@ -11,9 +12,9 @@ import java.sql.ResultSet;
 import java.util.Vector;
 
 import javax.swing.table.DefaultTableModel;
-import cn.jsu.Model.User;
-import cn.jsu.Util.DatabaseQuery;
-import cn.jsu.Util.DatabaseUpdate;
+
+import cn.jsu.Dao.Impl.DatabaseOperateImpl;
+import cn.jsu.Vo.User;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -183,7 +184,7 @@ public class ChoiceCourseInterface {
 		int row = table.getSelectedRow();
 		String sql1 = "select * from choices";
 		try {
-			ResultSet rs = DatabaseQuery.Query(sql1);
+			ResultSet rs = new DatabaseOperateImpl().Query(sql1);
 			while(rs.next()) {
 				if(u.getUsername().equals(rs.getString(1))) {
 					if(rs.getString(2).equals((String)table.getValueAt(row, 0))) {
@@ -195,7 +196,7 @@ public class ChoiceCourseInterface {
 			String sql2 = "insert choices values('"+u.getUsername()+
 					"','"+(String)table.getValueAt(row, 0)+
 					"','"+(String)table.getValueAt(row, 1)+"')";
-			DatabaseUpdate.Update(sql2);
+			new DatabaseOperateImpl().Update(sql2);
 			JOptionPane.showMessageDialog(null, "Ìí¼Ó³É¹¦£¡");
 			return;
 		} catch (Exception e) {
@@ -217,7 +218,7 @@ public class ChoiceCourseInterface {
 		dtm.setRowCount(0);
 		try {
 			String sql = "select * from course where cno = '"+cno+"'";
-			ResultSet rs = DatabaseQuery.Query(sql);
+			ResultSet rs = new DatabaseOperateImpl().Query(sql);
 			while(rs.next()) {
 				Vector v = new Vector();
 				v.add(rs.getString("cno"));
@@ -243,7 +244,7 @@ public class ChoiceCourseInterface {
 		dtm.setRowCount(0);
 		try {
 			String sql = "select * from course";
-			ResultSet rs = DatabaseQuery.Query(sql);
+			ResultSet rs = new DatabaseOperateImpl().Query(sql);
 			while(rs.next()) {
 				Vector v = new Vector();
 				v.add(rs.getString("cno"));

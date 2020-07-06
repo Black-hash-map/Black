@@ -10,8 +10,8 @@ import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.JTextField;
 
-import cn.jsu.Model.User;
-import cn.jsu.Util.DatabaseQuery;
+import cn.jsu.Dao.Impl.DatabaseOperateImpl;
+import cn.jsu.Vo.User;
 
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
@@ -166,7 +166,7 @@ public class QueryPersonGradeInerface {
 	private void FillTestField() {
 		String sql = "select * from grade where sno = '"+u.getUsername()+"'";
 		try {
-			ResultSet rs = DatabaseQuery.Query(sql);
+			ResultSet rs = new DatabaseOperateImpl().Query(sql);
 			while(rs.next()) {
 				textField.setText(rs.getString(1));
 				textField_1.setText(rs.getString(2));

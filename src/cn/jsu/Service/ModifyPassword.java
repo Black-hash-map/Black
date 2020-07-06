@@ -1,9 +1,10 @@
 package cn.jsu.Service;
 
 import javax.swing.JFrame;
+
 import javax.swing.JOptionPane;
-import cn.jsu.Model.User;
-import cn.jsu.Util.DatabaseUpdate;
+import cn.jsu.Dao.Impl.DatabaseOperateImpl;
+import cn.jsu.Vo.User;
 
 
 /**
@@ -28,7 +29,7 @@ public class ModifyPassword {
 				}
 			if(np.equals(rnp)) {
 				String sql = "update user set password = '"+np+"'"+" where username = '"+u.getUsername()+"'";
-				DatabaseUpdate.Update(sql);
+				new DatabaseOperateImpl().Update(sql);
 				JOptionPane.showMessageDialog(null, "ÐÞ¸Ä³É¹¦£¡");
 				frame.dispose();
 			}else {

@@ -10,8 +10,8 @@ import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.JPasswordField;
 
-import cn.jsu.Model.User;
 import cn.jsu.Service.ModifyPassword;
+import cn.jsu.Vo.User;
 
 import javax.swing.JButton;
 import java.awt.event.ActionListener;

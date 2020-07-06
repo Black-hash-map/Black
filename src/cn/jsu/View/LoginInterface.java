@@ -8,8 +8,9 @@ import javax.swing.JOptionPane;
 
 import java.awt.Font;
 import javax.swing.JTextField;
-import cn.jsu.Model.User;
-import cn.jsu.Util.DatabaseQuery;
+
+import cn.jsu.Dao.Impl.DatabaseOperateImpl;
+import cn.jsu.Vo.User;
 
 import javax.swing.JPasswordField;
 import java.awt.Toolkit;
@@ -139,7 +140,7 @@ public class LoginInterface {
 				}
 				String sql = "select *from user where username='" + username + "'";	//∂®“Âsql”Ôæ‰
 				try {
-					ResultSet rs = DatabaseQuery.Query(sql);
+					ResultSet rs = new DatabaseOperateImpl().Query(sql);
 					if(rs.next()) {
 						if(rs.getString(2).equals(password) && rs.getString(3).equals(type)) {
 							AddDiary();

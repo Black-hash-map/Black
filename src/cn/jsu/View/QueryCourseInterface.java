@@ -2,6 +2,7 @@ package cn.jsu.View;
 
 import java.awt.EventQueue;
 
+
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
@@ -11,8 +12,9 @@ import java.sql.ResultSet;
 import java.util.Vector;
 
 import javax.swing.table.DefaultTableModel;
-import cn.jsu.Model.User;
-import cn.jsu.Util.DatabaseQuery;
+
+import cn.jsu.Dao.Impl.DatabaseOperateImpl;
+import cn.jsu.Vo.User;
 
 /**
  * 查看课程界面
@@ -97,7 +99,7 @@ public class QueryCourseInterface {
 		User u = LoginInterface.getUser();
 		String sql = "select * from choices";
 		try {
-			ResultSet rs = DatabaseQuery.Query(sql);
+			ResultSet rs = new DatabaseOperateImpl().Query(sql);
 			while(rs.next()) {
 				Vector v = new Vector();
 				if(rs.getString("sno").equals(u.getUsername())) {

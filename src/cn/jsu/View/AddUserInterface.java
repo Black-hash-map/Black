@@ -2,6 +2,7 @@ package cn.jsu.View;
 
 import java.awt.EventQueue;
 
+
 import javax.swing.JFrame;
 import javax.swing.JDesktopPane;
 import java.awt.BorderLayout;
@@ -12,8 +13,8 @@ import javax.swing.JOptionPane;
 import java.awt.Font;
 import javax.swing.JTextField;
 
-import cn.jsu.Util.DatabaseQuery;
-import cn.jsu.Util.DatabaseUpdate;
+import cn.jsu.Dao.DatabaseOperate;
+import cn.jsu.Dao.Impl.DatabaseOperateImpl;
 
 import javax.swing.JRadioButton;
 import javax.swing.AbstractButton;
@@ -193,7 +194,7 @@ public class AddUserInterface {
 		}
 		String sql1 = "select * from user";	//定义sql语句
 		try {
-			ResultSet rs = DatabaseQuery.Query(sql1);
+			ResultSet rs = new DatabaseOperateImpl().Query(sql1);
 			while(rs.next()) {
 				if(rs.getString(1).equals(username)) {
 					JOptionPane.showMessageDialog(null, "该用户已经存在了！");
@@ -207,7 +208,7 @@ public class AddUserInterface {
 		String sql2 = "insert into user values('"+username+"','"+
 				password1+"','"+type+"')";	//定义sql语句
 		try {
-			DatabaseUpdate.Update(sql2);
+			new DatabaseOperateImpl().Update(sql2);
 			JOptionPane.showMessageDialog(null, "添加成功");
 			frame.dispose();
 		} catch (Exception e1) {

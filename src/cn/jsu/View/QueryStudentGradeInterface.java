@@ -1,6 +1,7 @@
 package cn.jsu.View;
 
 import java.awt.EventQueue;
+
 import java.awt.Font;
 import java.sql.ResultSet;
 import java.util.Vector;
@@ -9,9 +10,8 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
-
-import cn.jsu.Util.DatabaseQuery;
-import cn.jsu.Util.DatabaseUpdate;
+import cn.jsu.Dao.Impl.DatabaseOperateImpl;
+import cn.jsu.Dao.Impl.StudentGradeDaoImpl;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -120,36 +120,12 @@ public class QueryStudentGradeInterface {
 		textField.setColumns(10);
 		
 		btnNewButton = new JButton("\u67E5\u8BE2");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String sno = textField.getText();
-				if(sno == null || "".equals(sno.trim())) {
-					JOptionPane.showMessageDialog(null, "查询的学号不能为空");
-					FillGradeTable();
-					return;
-				}
-				QueryGrade();
-			}
-		});
-		btnNewButton.setFont(new Font("黑体", Font.PLAIN, 18));
-		
 		panel = new JPanel();
 		
 		btnNewButton_1 = new JButton("\u4FEE\u6539");
-		btnNewButton_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ModifyInformation();
-			}
-		});
-		btnNewButton_1.setFont(new Font("黑体", Font.PLAIN, 18));
 		
 		btnNewButton_2 = new JButton("\u5220\u9664");
-		btnNewButton_2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				DelInformation();
-			}
-		});
-		btnNewButton_2.setFont(new Font("黑体", Font.PLAIN, 18));
+		
 		GroupLayout groupLayout = new GroupLayout(frame.getContentPane());
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
@@ -267,14 +243,41 @@ public class QueryStudentGradeInterface {
 		textField_6.setBounds(422, 136, 135, 24);
 		panel.add(textField_6);
 		frame.getContentPane().setLayout(groupLayout);
-		FillGradeTable();
+		new StudentGradeDaoImpl().FillTable(table);	//填充
+		
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {	//查询
+				String sno = textField.getText();
+				if(sno == null || "".equals(sno.trim())) {
+					JOptionPane.showMessageDialog(null, "查询的学号不能为空");
+					new StudentGradeDaoImpl().FillTable(table);
+					return;
+				}
+				new StudentGradeDaoImpl().Query(textField,table);
+			}
+		});
+		btnNewButton.setFont(new Font("黑体", Font.PLAIN, 18));
+		
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {	//修改
+				new StudentGradeDaoImpl().Modify(textField_1, textField_2, textField_3, textField_4, textField_5, textField_6, table);
+			}
+		});
+		btnNewButton_1.setFont(new Font("黑体", Font.PLAIN, 18));
+		
+		btnNewButton_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				new StudentGradeDaoImpl().Del(textField_1, table);
+			}
+		});
+		btnNewButton_2.setFont(new Font("黑体", Font.PLAIN, 18));
 		
 		table.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
 				String sql = "select * from Grade";	//sql语句
 				int num = 0 ;
 				try {
-					ResultSet rs = DatabaseQuery.Query(sql);
+					ResultSet rs = new DatabaseOperateImpl().Query(sql);
 					while(rs.next()) {
 						num = table.getSelectedRow();
 						textField_1.setText((String)(table.getValueAt(num, 0)));
@@ -290,118 +293,6 @@ public class QueryStudentGradeInterface {
 				}
 			}
 		});
-		
-	}
-
-	/**
-	  * 删除成绩
-	 *@param sno	删除的学号
-	 *@param sql	sql语句
-	 *@exception	printStackTrace
-	 */
-	public void DelInformation() {
-		String sno = textField_1.getText();
-		String sql = "delete from grade where sno = '"+sno+"'";
-		try {
-			DatabaseUpdate.Update(sql);
-			JOptionPane.showMessageDialog(null, "删除成功！");
-			FillGradeTable();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-	}
-
-	/**
-	  * 修改成绩
-	 *@param sno	学号
-	 *@param english	待修改的英语成绩
-	 *@param databank	待修改的数据库成绩
-	 *@param java	待修改的Java成绩
-	 *@param internet	待修改的网络成绩
-	 *@exception	printStackTrace
-	 */
-	public void ModifyInformation() {
-		String sno = textField_1.getText();
-		String english = textField_3.getText();
-		String databank = textField_4.getText();
-		String java = textField_5.getText();
-		String internet = textField_6.getText();
-		if(english == null || "".equals(english.trim()) 
-				|| databank == null || "".equals(databank.trim())
-				|| java == null || "".equals(java.trim())
-				|| internet == null || "".equals(internet.trim())){
-			JOptionPane.showMessageDialog(null, "成绩不能为空！");
-			return;
-		}
-		String sql = "update grade set english = "+english+
-				", databank = "+databank+", java = "+java+
-				", internet = "+internet+" where sno = '"+sno+"'";
-		try {
-			DatabaseUpdate.Update(sql);
-			JOptionPane.showMessageDialog(null, "修改成功！");
-			FillGradeTable();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	  * 查询成绩
-	 *@param sno	查询的学号
-	 *@param dtm	创建一个表
-	 *@param sql	sql语句
-	 *@param rs		执行sql语句返回的结果集
-	 *@exception	printStackTrace
-	 */
-	public void QueryGrade() {
-		String sno = textField.getText();
-		DefaultTableModel dtm = (DefaultTableModel)table.getModel();
-		dtm.setRowCount(0);
-		try {
-			String sql = "select * from Grade where sno = '"+sno+"'";
-			ResultSet rs = DatabaseQuery.Query(sql);
-			while(rs.next()) {
-				Vector v = new Vector();
-				v.add(rs.getString("sno"));
-				v.add(rs.getString("sname"));
-				v.add(rs.getString("english"));
-				v.add(rs.getString("databank"));
-				v.add(rs.getString("java"));
-				v.add(rs.getString("internet"));
-				dtm.addRow(v);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	  * 填充成绩表
-	 *@param dtm	待填充的表
-	 *@param sql	sql语句
-	 *@param rs		执行sql语句返回的结果集
-	 *@exception	printStackTrace
-	 */
-	public void FillGradeTable() {
-		DefaultTableModel dtm = (DefaultTableModel)table.getModel();
-		dtm.setRowCount(0);
-		try {
-			String sql = "select * from Grade";
-			ResultSet rs = DatabaseQuery.Query(sql);
-			while(rs.next()) {
-				Vector v = new Vector();
-				v.add(rs.getString("sno"));
-				v.add(rs.getString("sname"));
-				v.add(rs.getString("english"));
-				v.add(rs.getString("databank"));
-				v.add(rs.getString("java"));
-				v.add(rs.getString("internet"));
-				dtm.addRow(v);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		
 	}
 

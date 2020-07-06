@@ -10,6 +10,9 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.JTable;
 import java.awt.Font;
 import javax.swing.table.DefaultTableModel;
+
+import cn.jsu.Vo.Diary;
+
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
@@ -247,7 +250,7 @@ public class LoginDiaryInterface {
 	private void DelDiary() throws Exception {
 		String username = textField_1.getText();
 		String time = textField_2.getText();
-		ArrayList<String> arr = new ArrayList<String>();
+		ArrayList<Diary> arr = new ArrayList<Diary>();
 		BufferedWriter bw = null;
 		BufferedReader br = null;
 		String s = null;
@@ -256,11 +259,14 @@ public class LoginDiaryInterface {
 				if(s.equals(username+" "+time)) {
 					continue;
 				}
-				arr.add(s);
+				String[] str = s.split(" ");
+				Diary da = new Diary(str[0]+" ", str[1]+" "+str[2]);
+				arr.add(da);
 			}
 		bw = new BufferedWriter(new FileWriter(file));
-		for(String str : arr) {
-			bw.write(str);
+		for(Diary d : arr) {
+			String dia = d.getUsername()+d.getTime();
+			bw.write(dia);
 			bw.newLine();
 			bw.flush();
 		}
@@ -281,19 +287,24 @@ public class LoginDiaryInterface {
 		String time = textField_2.getText();
 		BufferedWriter bw = null;
 		BufferedReader br = null;
-		ArrayList<String> arr = new ArrayList<String>();
+		ArrayList<Diary> arr = new ArrayList<Diary>();
 		br = new BufferedReader(new FileReader(file));
 		String s = null;
 		while((s = br.readLine()) != null) {
-				String[] arrstr = s.split(" ");
-				if((username.equals(arrstr[0]))) {
-					arr.add(username.concat(" "+time));
+				String[] str = s.split(" ");
+				Diary da = new Diary(str[0]+" ", str[1]+" "+str[2]);
+				if((username.equals(str[0]))) {
+					da.setUsername(username+" ");
+					da.setTime(time);
+					arr.add(da);
 					continue;
 				}
-				arr.add(s);
+				arr.add(da);
 			}
 			bw = new BufferedWriter(new FileWriter(file));
-			for(String str : arr) {
+			for(Diary d : arr) {
+				String dia = d.getUsername()+d.getTime();
+				bw.write(dia);
 				bw.newLine();
 				bw.flush();
 			}
@@ -310,13 +321,15 @@ public class LoginDiaryInterface {
 		String username = textField.getText();
 		DefaultTableModel dtm = (DefaultTableModel)table.getModel();
 		dtm.setRowCount(0);
-		ArrayList<String> arr = new ArrayList<String>();
+		ArrayList<Diary> arr = new ArrayList<Diary>();
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			String s = null;
 			try {
 				while((s = br.readLine()) != null) {
-					arr.add(s);
+					String[] str = s.split(" ");
+					Diary da = new Diary(str[0], str[1]+" "+str[2]);
+					arr.add(da);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -324,12 +337,11 @@ public class LoginDiaryInterface {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}		
-		for(String str : arr) {
+		for(Diary d : arr) {
 			Vector<String> v = new Vector<String>();
-			String[] arrstr = str.split(" ");
-			if(username.equals(arrstr[0])) {
-				v.add(arrstr[0]);
-				v.add(arrstr[1]+" "+arrstr[2]);
+			if(username.equals(d.getUsername())) {
+				v.add(d.getUsername());
+				v.add(d.getTime());
 				dtm.addRow(v);
 			}
 		}
@@ -345,13 +357,15 @@ public class LoginDiaryInterface {
 	private void FillDiary() {
 		DefaultTableModel dtm = (DefaultTableModel)table.getModel();
 		dtm.setRowCount(0);
-		ArrayList<String> arr = new ArrayList<String>();
+		ArrayList<Diary> arr = new ArrayList<Diary>();
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			String s = null;
 			try {
 				while((s = br.readLine()) != null) {
-					arr.add(s);
+					String[] str = s.split(" ");
+					Diary da = new Diary(str[0], str[1]+" "+str[2]);
+					arr.add(da);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -359,11 +373,10 @@ public class LoginDiaryInterface {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}		
-		for(String str : arr) {
+		for(Diary d : arr) {
 			Vector<String> v = new Vector<String>();
-			String[] arrstr = str.split(" ");
-			v.add(arrstr[0]);
-			v.add(arrstr[1]+" "+arrstr[2]);
+			v.add(d.getUsername());
+			v.add(d.getTime());
 			dtm.addRow(v);
 		}
 	}
